@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parley</title>
+<meta name="description" content="Parley: Java libraries for implementing internet protocols, with ready-to-use FTP, SSH, SFTP, SMTP, IMAP, POP3 and DNS clients and servers.">
+<link rel="icon" type="image/svg+xml" href="assets/parley-icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/parley-icon-32.png">
+<link rel="apple-touch-icon" href="assets/parley-icon-256.png">
+<meta name="theme-color" content="#080808">
+<meta property="og:title" content="Parley">
+<meta property="og:description" content="Java libraries for implementing internet protocols: FTP, SSH, SFTP, SMTP, IMAP, POP3 and DNS clients and servers.">
+<meta property="og:image" content="https://parley.bringardner.us/assets/parley-icon-512.png">
+<meta property="og:url" content="https://parley.bringardner.us/">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: black page with gold bands, like Margot's cards on the tower. Mono for anything that goes on the wire. */
+:root {
+  --black: #080808;        /* brand INK */
+  --panel: #12100b;        /* raised surfaces on black */
+  --gold: #F2CE71;         /* Color(242, 206, 113) */
+  --bronze: #967B28;       /* Color(150, 123, 40) */
+  --text: #ECE3CC;         /* body text on black, warmed toward gold */
+  --muted: #A3966F;        /* secondary text on black */
+  --line: rgba(242, 206, 113, 0.16);
+  --on-gold: #080808;
+  --on-gold-muted: #4a3c12;
+  --mono: "IBM Plex Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.2rem;
+  --step-4: clamp(1.85rem, 5.4vw, 4.1rem);
+  --radius: 14px;
+  --wrap: 1120px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--gold); text-underline-offset: 3px; }
+a:hover { color: var(--text); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--mono); font-weight: 600; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+code, pre, kbd { font-family: var(--mono); }
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+.lede { font-size: var(--step-1); line-height: 1.55; max-width: 60ch; color: var(--text); }
+.prose { max-width: 65ch; color: var(--muted); }
+.prose strong { color: var(--text); font-weight: 600; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.site-header .wrap { display: flex; align-items: center; gap: 24px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--gold); font-family: var(--mono); font-weight: 600; font-size: 1.2rem; letter-spacing: 0.06em; }
+.brand img { width: 28px; height: 28px; }
+.site-nav { display: flex; gap: 22px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+.site-nav a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: var(--step--1); }
+.site-nav a:hover { color: var(--gold); }
+@media (max-width: 720px) { .site-nav .opt { display: none; } .site-nav { gap: 16px; } }
+
+/* ---------- Hero ---------- */
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 48px; align-items: center; padding-block: 64px 72px; }
+.hero h1 { font-size: var(--step-4); color: var(--text); font-weight: 600; }
+.hero h1 .ask { display: block; color: var(--gold); white-space: nowrap; }
+.hero h1 .proto { display: inline-block; min-width: 4.2ch; transition: opacity .25s ease, transform .25s ease; }
+.hero h1 .proto.swap { opacity: 0; transform: translateY(-0.18em); }
+.hero .gloss { font-family: var(--mono); font-size: var(--step--1); color: var(--muted); margin-top: 14px; }
+.hero .lede { margin-top: 28px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 600; font-size: 0.95rem; text-decoration: none; padding: 12px 20px; border-radius: 999px; border: 1.5px solid var(--gold); }
+.btn-primary { background: var(--gold); color: var(--on-gold); }
+.btn-primary:hover { background: var(--text); border-color: var(--text); color: var(--on-gold); }
+.btn-ghost { color: var(--gold); }
+.btn-ghost:hover { background: rgba(242, 206, 113, 0.1); color: var(--gold); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 36px; padding: 0; list-style: none; font-family: var(--mono); font-size: var(--step--1); color: var(--muted); }
+.facts li::before { content: "■ "; color: var(--bronze); }
+.hero-art { justify-self: center; width: 100%; max-width: 300px; }
+.hero-art img { display: block; width: 100%; height: auto; filter: drop-shadow(0 30px 60px rgba(242, 206, 113, 0.08)); }
+@media (max-width: 820px) {
+  .hero .wrap { grid-template-columns: 1fr; padding-block: 40px 56px; gap: 36px; }
+  .hero-art { max-width: 200px; order: -1; }
+}
+
+/* ---------- Generic section ---------- */
+.section .wrap { padding-block: 88px; display: grid; gap: 40px; }
+.section-head { display: grid; gap: 14px; }
+.section-head p { max-width: 62ch; color: var(--muted); }
+
+/* ---------- Gold band: protocols ---------- */
+.band-gold { background: var(--gold); color: var(--on-gold); }
+.band-gold .eyebrow { color: var(--on-gold-muted); }
+.band-gold .section-head p { color: var(--on-gold-muted); }
+.band-gold a { color: var(--on-gold); }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab {
+  font-family: var(--mono); font-weight: 600; font-size: 0.95rem;
+  padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--on-gold); border: 1.5px solid var(--on-gold);
+}
+.tab:hover { background: rgba(8, 8, 8, 0.08); }
+.tab[aria-selected="true"] { background: var(--black); color: var(--gold); }
+.tab:focus-visible { outline-color: var(--black); }
+.panel { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 40px; align-items: start; }
+.panel-card img { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: 0 0 0 1.5px rgba(8,8,8,0.85), 0 18px 40px rgba(55, 44, 15, 0.35); }
+.panel-card .repo { display: block; margin-top: 14px; font-family: var(--mono); font-size: var(--step--1); }
+.panel-body { display: grid; gap: 22px; min-width: 0; }
+.panel-body h3 { font-size: var(--step-2); }
+.panel-body > p { max-width: 62ch; }
+.specs { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.specs li { font-family: var(--mono); font-size: 0.8rem; padding: 3px 10px; border-radius: 6px; background: rgba(8, 8, 8, 0.1); border: 1px solid rgba(8, 8, 8, 0.25); }
+.code-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.code-pair.single { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 960px) { .code-pair { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .panel { grid-template-columns: minmax(0, 1fr); } .panel-card { max-width: 240px; } }
+
+/* ---------- Code blocks ---------- */
+.code { background: var(--black); color: var(--text); border-radius: var(--radius); overflow: hidden; min-width: 0; border: 1px solid var(--line); }
+.code-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bronze); }
+.code pre { margin: 0; padding: 14px 16px 16px; overflow-x: auto; font-size: 0.82rem; line-height: 1.6; tab-size: 4; }
+.code .c { color: #7f7356; font-style: italic; }
+.code .k { color: var(--gold); }
+.code .s { color: #d9b866; }
+.wire .ln { display: block; white-space: pre; }
+.wire .who { display: inline-block; width: 2ch; color: var(--bronze); user-select: none; }
+.wire .cli { color: var(--gold); }
+.wire .eol { color: #5c5235; user-select: none; font-size: 0.85em; }
+.wire .ln.lit { background: rgba(242, 206, 113, 0.07); }
+.copy { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+.copy:hover { border-color: var(--gold); }
+
+/* ---------- Stack diagram ---------- */
+.stack { display: grid; gap: 10px; }
+.tier { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.tier-name { font-family: var(--mono); font-size: var(--step--1); color: var(--bronze); padding-top: 12px; border-top: 2px solid var(--bronze); }
+.tier-name small { display: block; color: var(--muted); font-family: var(--sans); font-size: 0.8rem; margin-top: 4px; line-height: 1.4; }
+.tier-mods { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; padding: 12px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); }
+.mod { font-family: var(--mono); font-size: 0.85rem; text-decoration: none; color: var(--text); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--black); display: inline-flex; flex-direction: column; gap: 1px; }
+.mod span { font-family: var(--sans); font-size: 0.72rem; color: var(--muted); }
+.mod:hover { border-color: var(--gold); color: var(--gold); }
+.mod.key { border-color: var(--bronze); }
+.tier-foundation .tier-mods { background: rgba(150, 123, 40, 0.14); border-color: rgba(150, 123, 40, 0.45); }
+@media (max-width: 720px) { .tier { grid-template-columns: minmax(0, 1fr); gap: 8px; } .tier-name { padding-top: 8px; } }
+
+/* ---------- Files ---------- */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+@media (max-width: 880px) { .split { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+.dl { display: grid; gap: 0; margin: 0; }
+.dl div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.dl dt { font-family: var(--mono); font-size: 0.85rem; color: var(--gold); }
+.dl dd { margin: 0; color: var(--muted); font-size: 0.95rem; }
+@media (max-width: 480px) { .dl div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+/* ---------- Debugging ---------- */
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 760px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.tool { padding: 26px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; }
+.tool h3 { color: var(--gold); }
+.tool p { color: var(--muted); }
+
+/* ---------- Get started ---------- */
+.band-bronze { background: linear-gradient(180deg, #17130a, var(--black)); border-top: 1px solid rgba(150, 123, 40, 0.4); }
+.steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 860px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.reqs { display: flex; flex-wrap: wrap; gap: 10px 28px; padding: 0; margin: 0; list-style: none; font-family: var(--mono); font-size: var(--step--1); color: var(--muted); }
+.reqs b { color: var(--gold); font-weight: 600; }
+
+/* ---------- Margot ---------- */
+.margot { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; align-items: center; }
+.margot img { width: 100%; max-width: 200px; height: auto; }
+.margot blockquote { margin: 0 0 14px; font-family: var(--mono); font-size: var(--step-2); color: var(--gold); }
+@media (max-width: 640px) { .margot { grid-template-columns: minmax(0, 1fr); gap: 20px; } .margot img { max-width: 140px; } }
+
+/* ---------- Footer ---------- */
+.site-footer { border-top: 1px solid var(--line); }
+.site-footer .wrap { padding-block: 40px 56px; display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; color: var(--muted); font-size: var(--step--1); }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--mono); }
+.site-footer a { color: var(--muted); }
+.site-footer a:hover { color: var(--gold); }
+</style>
+
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Parley home"><img src="assets/parley-icon.svg" alt="">parley</a>
+    <nav class="site-nav" aria-label="Sections">
+      <a href="#protocols">Protocols</a>
+      <a class="opt" href="#stack">Modules</a>
+      <a class="opt" href="#files">Files</a>
+      <a href="#start">Get started</a>
+      <a href="https://github.com/parley-project/parley-core">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Java libraries for internet protocols</p>
+        <h1 id="hero-title" style="margin-top:18px">Parley speaks the protocols.<span class="ask">Parlez-vous <span class="proto" id="hero-proto">SMTP</span>&nbsp;?</span></h1>
+        <p class="gloss">parley, from the French <i>parler</i>, "to speak"</p>
+        <p class="lede">A framework for building clients and servers for line-based and binary protocols, plus ready-to-use implementations of FTP, SSH, SFTP, SMTP, IMAP, POP3 and DNS. Files can live anywhere: on disk, in memory, on an FTP or SFTP server, or in a database.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#start">Get started</a>
+          <a class="btn btn-ghost" href="#protocols">Meet the protocols</a>
+        </div>
+        <ul class="facts" aria-label="At a glance">
+          <li>Java 11+</li>
+          <li>Apache 2.0</li>
+          <li>Minimal dependencies</li>
+          <li>us.bringardner.parley</li>
+        </ul>
+      </div>
+      <div class="hero-art">
+        <img src="assets/parley-hero.svg" alt="Margot the magpie perched on the Parley tower, sending radio waves and lightning bolts">
+      </div>
+    </div>
+  </section>
+
+  <section class="band-gold section" id="protocols" aria-labelledby="protocols-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Protocols</p>
+        <h2 id="protocols-title">Clients and servers, ready to run</h2>
+        <p>Each protocol is its own module, built on parley-net. Pick one to see what goes over the wire and the Java that drives it.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Protocols" id="tabs"></div>
+      <div id="panels"></div>
+    </div>
+  </section>
+
+  <section class="section" id="stack" aria-labelledby="stack-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Modules</p>
+        <h2 id="stack-title">Take only the layers you need</h2>
+        <p>Every module is a separate Maven artifact. The protocols sit on a small foundation, and anything that stores files does it through parley-files, so an FTP or SFTP server can serve a database as easily as a disk.</p>
+      </div>
+      <div class="stack">
+        <div class="tier">
+          <div class="tier-name">Applications<small>Ready-made file browsers</small></div>
+          <div class="tier-mods">
+            <a class="mod" href="https://github.com/parley-project/parley-files-viewer">parley-files-viewer<span>Swing</span></a>
+            <span class="mod">parley-files-viewer-fx<span>JavaFX</span></span>
+            <a class="mod" href="https://github.com/parley-project/parley-files-swing">parley-files-swing<span>Swing components</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-files-fx">parley-files-fx<span>JavaFX components</span></a>
+          </div>
+        </div>
+        <div class="tier">
+          <div class="tier-name">Protocols<small>Clients, servers or both</small></div>
+          <div class="tier-mods">
+            <a class="mod key" href="https://github.com/parley-project/parley-ftp">parley-ftp<span>FTP, FTPS</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-ssh">parley-ssh<span>SSH, SFTP</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-smtp">parley-smtp<span>SMTP, DKIM, SPF, DMARC</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-imap">parley-imap<span>IMAP4rev2</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-pop3">parley-pop3<span>POP3</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-dns">parley-dns<span>DNS, DNSSEC</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-dap">parley-dap<span>Debug Adapter Protocol</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-loupe">parley-loupe<span>Loupe debugging</span></a>
+          </div>
+        </div>
+        <div class="tier">
+          <div class="tier-name">Shared services<small>Mail store and file systems</small></div>
+          <div class="tier-mods">
+            <a class="mod key" href="https://github.com/parley-project/parley-mail">parley-mail<span>Messages and mailboxes</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-files">parley-files<span>FileSource API</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-files-ftp">parley-files-ftp<span>FTP, FTPS</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-files-sftp">parley-files-sftp<span>SFTP</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-files-jdbc">parley-files-jdbc<span>Database</span></a>
+            <a class="mod" href="https://github.com/parley-project/parley-credentials-keychain">parley-credentials-keychain<span>OS keychain</span></a>
+          </div>
+        </div>
+        <div class="tier tier-foundation">
+          <div class="tier-name">Foundation<small>What everything else stands on</small></div>
+          <div class="tier-mods">
+            <a class="mod key" href="https://github.com/parley-project/parley-net">parley-net<span>Protocol framework, blocking and NIO</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-core">parley-core<span>Logging, properties, TLS, threads</span></a>
+            <a class="mod key" href="https://github.com/parley-project/parley-io">parley-io<span>Explicit end-of-line I/O</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="files" aria-labelledby="files-title" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="split">
+        <div style="display:grid; gap:22px; min-width:0">
+          <div class="section-head">
+            <p class="eyebrow">parley-files</p>
+            <h2 id="files-title">One file API for every place files live</h2>
+          </div>
+          <p class="prose"><strong>FileSource</strong> looks very much like <code>java.io.File</code>, but many file systems can be used side by side, and a <code>java.nio.file</code> provider covers all of them. Implementations are found at runtime through <code>ServiceLoader</code>, so adding one is a matter of putting a jar on the class path.</p>
+          <dl class="dl">
+            <div><dt>Local, memory</dt><dd>Built into parley-files</dd></div>
+            <div><dt>FTP, FTPS</dt><dd>parley-files-ftp, using the parley-ftp client</dd></div>
+            <div><dt>SFTP</dt><dd>parley-files-sftp, with JSch, Apache MINA SSHD or parley-ssh chosen at run time</dd></div>
+            <div><dt>Database</dt><dd>parley-files-jdbc keeps a whole file system in tables</dd></div>
+            <div><dt>Secrets</dt><dd>parley-credentials-keychain reads passwords from the macOS Keychain, Linux Secret Service or Windows Credential Manager</dd></div>
+          </dl>
+        </div>
+        <div class="code">
+          <div class="code-label"><span>Java</span><button class="copy" type="button" data-copy="files-code">Copy</button></div>
+          <pre id="files-code"><code><span class="k">FileSourceFactory</span> factory = <span class="k">FileSourceFactory</span>.getDefaultFactory();   <span class="c">// local files</span>
+
+<span class="k">FileSource</span> dir = factory.createFileSource(<span class="s">"/tmp/example"</span>);
+dir.mkdirs();
+
+<span class="k">FileSource</span> file = dir.getChild(<span class="s">"hello.txt"</span>);
+<span class="k">try</span> (<span class="k">OutputStream</span> out = file.getOutputStream()) {
+    out.write(<span class="s">"Hello, FileSource"</span>.getBytes(<span class="k">StandardCharsets</span>.UTF_8));
+}
+
+<span class="k">for</span> (<span class="k">FileSource</span> f : dir.listFiles()) {
+    System.out.println(f.getName() + <span class="s">"  "</span> + f.length() + <span class="s">" bytes"</span>);
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="debugging" aria-labelledby="debug-title" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Debugging protocols</p>
+        <h2 id="debug-title">Protocols for tools, too</h2>
+      </div>
+      <div class="pair">
+        <article class="tool">
+          <h3>parley-dap</h3>
+          <p>The Debug Adapter Protocol, both ends. Write an adapter that VS Code, Eclipse, vim and other DAP clients can drive, or a client that drives one. Messages are typed classes generated from the official schema, and connections run over sockets, stdin and stdout, or parley-net's non-blocking channels. No dependencies outside Parley.</p>
+          <a href="https://github.com/parley-project/parley-dap">github.com/parley-project/parley-dap</a>
+        </article>
+        <article class="tool">
+          <h3>parley-loupe</h3>
+          <p>Loupe is a debugging protocol designed as an alternative to DAP: JSON messages with stop snapshots, typed values, stable object ids and version negotiation. A bridge lets VS Code and any other DAP client debug a Loupe target.</p>
+          <a href="https://github.com/parley-project/parley-loupe">github.com/parley-project/parley-loupe</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section band-bronze" id="start" aria-labelledby="start-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Get started</p>
+        <h2 id="start-title">Import the BOM, then add what you need</h2>
+        <p>The bill of materials lists versions of every module that work together, so you never pick versions one by one.</p>
+      </div>
+      <div class="steps">
+        <div class="code">
+          <div class="code-label"><span>pom.xml · import the BOM</span><button class="copy" type="button" data-copy="bom-code">Copy</button></div>
+          <pre id="bom-code"><code>&lt;<span class="k">dependencyManagement</span>&gt;
+  &lt;<span class="k">dependencies</span>&gt;
+    &lt;<span class="k">dependency</span>&gt;
+      &lt;groupId&gt;<span class="s">us.bringardner.parley</span>&lt;/groupId&gt;
+      &lt;artifactId&gt;<span class="s">parley-bom</span>&lt;/artifactId&gt;
+      &lt;version&gt;<span class="s">1.0.0</span>&lt;/version&gt;
+      &lt;type&gt;pom&lt;/type&gt;
+      &lt;scope&gt;import&lt;/scope&gt;
+    &lt;/<span class="k">dependency</span>&gt;
+  &lt;/<span class="k">dependencies</span>&gt;
+&lt;/<span class="k">dependencyManagement</span>&gt;</code></pre>
+        </div>
+        <div class="code">
+          <div class="code-label"><span>pom.xml · add modules, no versions</span><button class="copy" type="button" data-copy="dep-code">Copy</button></div>
+          <pre id="dep-code"><code>&lt;<span class="k">dependencies</span>&gt;
+  &lt;<span class="k">dependency</span>&gt;
+    &lt;groupId&gt;<span class="s">us.bringardner.parley</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="s">parley-smtp</span>&lt;/artifactId&gt;
+  &lt;/<span class="k">dependency</span>&gt;
+  &lt;<span class="k">dependency</span>&gt;
+    &lt;groupId&gt;<span class="s">us.bringardner.parley</span>&lt;/groupId&gt;
+    &lt;artifactId&gt;<span class="s">parley-imap</span>&lt;/artifactId&gt;
+  &lt;/<span class="k">dependency</span>&gt;
+&lt;/<span class="k">dependencies</span>&gt;</code></pre>
+        </div>
+      </div>
+      <ul class="reqs">
+        <li><b>Java</b> 11 or later</li>
+        <li><b>License</b> Apache 2.0</li>
+        <li><b>Coming from BJL?</b> Each module's README lists its old coordinates and package names</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="margot" aria-labelledby="margot-title" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="margot">
+        <img src="assets/margot.svg" alt="Margot the magpie">
+        <div>
+          <blockquote>Bavarde comme une pie.</blockquote>
+          <h2 id="margot-title" class="eyebrow" style="font-size:var(--step--1); letter-spacing:0.12em">Meet Margot</h2>
+          <p class="prose" style="margin-top:12px">The French say a chatty person is "chatty as a magpie", so Parley's mascot is one. Margot perches on the tower, a nod to the Eiffel Tower's early years as a wireless telegraph station, and on each protocol's card she asks the only question that matters: <strong>Parlez-vous SMTP&nbsp;?</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Parley is open source under the Apache License 2.0. Formerly the Bringardner Java Library.</p>
+    <nav aria-label="Repositories">
+      <a href="https://github.com/parley-project/parley-core">parley-core</a>
+      <a href="https://github.com/parley-project/parley-net">parley-net</a>
+      <a href="https://github.com/parley-project/parley-bom">parley-bom</a>
+      <a href="https://github.com/parley-project/parley-brand">parley-brand</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var CARDS = {"smtp": "assets/margot-smtp.svg", "imap": "assets/margot-imap.svg", "pop3": "assets/margot-pop3.svg", "ftp": "assets/margot-ftp.svg", "ssh": "assets/margot-ssh.svg", "sftp": "assets/margot-sftp.svg", "dns": "assets/margot-dns.svg"};
+  var GH = "https://github.com/parley-project/";
+
+  // C: client line, S: server line. "~" marks a line without CR LF (binary protocols, decoded).
+  var PROTOCOLS = [
+    { id: "smtp", name: "SMTP", repo: "parley-smtp", title: "Send, receive and relay mail",
+      text: "An SMTP server and mail transfer agent. It delivers into the parley-mail store, the same mailboxes IMAP and POP3 serve, and relays mail for other domains through a persistent queue. It signs and checks DKIM, checks SPF and DMARC with aggregate reports, and handles ARC.",
+      specs: ["RFC 5321", "DKIM · RFC 6376", "SPF · RFC 7208", "DMARC · RFC 7489", "ARC · RFC 8617", "Submission · port 587"],
+      wire: [
+        "S 220 mail.example.com ESMTP",
+        "C EHLO client.example.org",
+        "S 250-mail.example.com",
+        "S 250-STARTTLS",
+        "S 250-SMTPUTF8",
+        "S 250 8BITMIME",
+        "C MAIL FROM:<tony@example.org>",
+        "S 250 2.1.0 OK",
+        "C RCPT TO:<margot@example.com>",
+        "S 250 2.1.5 OK",
+        "C DATA",
+        "S 354 End data with <CR><LF>.<CR><LF>"
+      ],
+      code: '<span class="k">SmtpServer</span> relay = <span class="k">new</span> SmtpServer();               <span class="c">// port 25</span>\nrelay.setMaildropRoot(rootFileSource);             <span class="c">// the same root as POP3 and IMAP</span>\nrelay.addLocalDomain(<span class="s">"example.com"</span>);\nrelay.start();\n\n<span class="k">SmtpServer</span> submission = SmtpServer.submissionServer(<span class="k">false</span>);   <span class="c">// port 587</span>\nsubmission.setQueue(relay.getQueue());             <span class="c">// one queue for both</span>\nsubmission.start();\n\nrelay.send(from, List.of(to), message);            <span class="c">// send mail from code</span>'
+    },
+    { id: "imap", name: "IMAP", repo: "parley-imap", title: "Mailboxes, served",
+      text: "An IMAP server that speaks IMAP4rev2 and IMAP4rev1, plus an IMAP client library with a command-line program. It serves the parley-mail store, so mail delivered by SMTP shows up here and in POP3.",
+      specs: ["IMAP4rev2 · RFC 9051", "IMAP4rev1", "Client library", "Command-line client"],
+      wire: [
+        "S * OK [CAPABILITY IMAP4rev2 IMAP4rev1 STARTTLS AUTH=PLAIN] ready",
+        "C a1 LOGIN tony ********",
+        "S a1 OK LOGIN completed",
+        "C a2 SELECT INBOX",
+        "S * 3 EXISTS",
+        "S * FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)",
+        "S a2 OK [READ-WRITE] SELECT completed",
+        "C a3 LOGOUT",
+        "S * BYE",
+        "S a3 OK LOGOUT completed"
+      ],
+      code: '<span class="k">ImapServer</span> server = <span class="k">new</span> ImapServer();          <span class="c">// port 143</span>\nserver.setMaildropRoot(rootFileSource);        <span class="c">// the same root as Pop3Server</span>\nserver.start();\n\nserver.deliver(<span class="s">"tony"</span>, <span class="s">"INBOX"</span>, message, <span class="k">null</span>); <span class="c">// local delivery; returns the UID</span>'
+    },
+    { id: "pop3", name: "POP3", repo: "parley-pop3", title: "Simple mail pickup",
+      text: "A POP3 server with capabilities, STLS, AUTH PLAIN and UTF-8 support. Like IMAP, it serves the parley-mail store, so both protocols see the same mail.",
+      specs: ["RFC 1939", "CAPA · RFC 2449", "STLS · RFC 2595", "AUTH PLAIN · RFC 5034", "UTF8 · RFC 6856"],
+      wire: [
+        "S +OK POP3 server ready",
+        "C CAPA",
+        "S +OK Capability list follows",
+        "S STLS",
+        "S SASL PLAIN",
+        "S UTF8",
+        "S .",
+        "C USER tony",
+        "S +OK",
+        "C PASS ********",
+        "S +OK maildrop has 2 messages",
+        "C STAT",
+        "S +OK 2 3204"
+      ],
+      code: '<span class="k">Pop3Server</span> server = <span class="k">new</span> Pop3Server();          <span class="c">// port 110</span>\nserver.setMaildropRoot(rootFileSource);\nserver.start();\n\nserver.deliver(<span class="s">"tony"</span>, message);               <span class="c">// local delivery, e.g. from SMTP</span>'
+    },
+    { id: "ftp", name: "FTP", repo: "parley-ftp", title: "FTP and FTPS, client and server",
+      text: "An FTP client and server with explicit and implicit FTPS and IPv6-ready extended passive mode. The server hands out files from any parley-files FileSource, so it can serve a local disk, an in-memory tree or a database.",
+      specs: ["RFC 959", "FTPS · RFC 2228", "IPv6 · RFC 2428", "Explicit and implicit TLS", "Resume uploads"],
+      wire: [
+        "S 220 Service ready",
+        "C AUTH TLS",
+        "S 234 Proceed with negotiation",
+        "C USER tony",
+        "S 331 Password required",
+        "C PASS ********",
+        "S 230 User logged in",
+        "C EPSV",
+        "S 229 Entering Extended Passive Mode (|||50123|)",
+        "C RETR README.md",
+        "S 150 Opening data connection",
+        "S 226 Transfer complete"
+      ],
+      code: null
+    },
+    { id: "ssh", name: "SSH", repo: "parley-ssh", title: "SSH the way OpenSSH users expect",
+      text: "An SSH client and server built on parley-net's non-blocking channels, with certificates, agents, port forwarding and security keys. It is tested against OpenSSH, Apache MINA SSHD and JSch.",
+      specs: ["RFC 4251–4254", "Certificates", "Agent", "Port forwarding", "Security keys"],
+      wire: [
+        "C SSH-2.0-OpenSSH_9.6",
+        "S SSH-2.0-example",
+        "C~SSH_MSG_KEXINIT",
+        "S~SSH_MSG_KEXINIT",
+        "C~SSH_MSG_KEX_ECDH_INIT",
+        "S~SSH_MSG_KEX_ECDH_REPLY",
+        "C~SSH_MSG_NEWKEYS",
+        "C~SSH_MSG_USERAUTH_REQUEST  tony  publickey",
+        "S~SSH_MSG_USERAUTH_SUCCESS",
+        "C~SSH_MSG_CHANNEL_OPEN  session",
+        "C~SSH_MSG_CHANNEL_REQUEST  exec \"uname -a\""
+      ],
+      code: '<span class="k">try</span> (<span class="k">SshClient</span> client = <span class="k">new</span> SshClient()) {\n    client.setHostKeyVerifier(KnownHosts.userFile());          <span class="c">// ~/.ssh/known_hosts</span>\n    <span class="k">ClientSession</span> s = client.connectAndWait(<span class="s">"example.com"</span>, 22);\n    s.authenticateAndWait(<span class="s">"tony"</span>, PublicKeyAuth.fromAgent(SshAgent.connect()));\n    System.out.print(s.exec(<span class="s">"uname -a"</span>, <span class="k">null</span>, 30000).getStdoutText());\n}'
+    },
+    { id: "sftp", name: "SFTP", repo: "parley-ssh", title: "SFTP that serves any file system",
+      text: "parley-ssh includes an SFTP client and an SFTP server subsystem that serves any parley-files FileSource, sandboxed to its root. On the client side, parley-files-sftp lets you use SFTP servers through the FileSource API with the SSH library of your choice.",
+      specs: ["SFTP v3", "Sandboxed root", "Read-only mode", "JSch, MINA SSHD or parley-ssh"],
+      wire: [
+        "C~SSH_FXP_INIT  version 3",
+        "S~SSH_FXP_VERSION  3",
+        "C~SSH_FXP_OPENDIR  \".\"",
+        "S~SSH_FXP_HANDLE",
+        "C~SSH_FXP_READDIR",
+        "S~SSH_FXP_NAME  12 entries",
+        "C~SSH_FXP_CLOSE",
+        "S~SSH_FXP_STATUS  OK"
+      ],
+      code: '<span class="k">SftpFileSourceFactory</span> factory = <span class="k">new</span> SftpFileSourceFactory();\n<span class="k">Properties</span> p = factory.getConnectProperties();\np.setProperty(<span class="s">"host"</span>, <span class="s">"example.com"</span>);\np.setProperty(<span class="s">"user"</span>, <span class="s">"me"</span>);\np.setProperty(<span class="s">"password"</span>, <span class="s">"@keychain:parley/example"</span>);\np.setProperty(<span class="s">"implementation"</span>, <span class="s">"mina"</span>);   <span class="c">// or "jsch", "parley"</span>\nfactory.setConnectionProperties(p);'
+    },
+    { id: "dns", name: "DNS", repo: "parley-dns", title: "DNS, client and server",
+      text: "A DNS server and resolver with DNSSEC validation, zone transfer, TSIG and dynamic update, plus work-alikes of nslookup and nsupdate. SMTP uses it for SPF, DKIM and DMARC lookups.",
+      specs: ["RFC 1035", "DNSSEC", "Dynamic update · RFC 2136", "TSIG", "nslookup and nsupdate"],
+      wire: [
+        "C~QUERY  id 4711  RD",
+        "C~  _dmarc.example.com.  IN  TXT",
+        "S~RESPONSE  id 4711  QR RD RA AD  NOERROR",
+        "S~  _dmarc.example.com.  3600  IN  TXT  \"v=DMARC1; p=reject\""
+      ],
+      code: '<span class="k">LookupResult</span>&lt;<span class="k">String</span>&gt; r = Lookup.txt(<span class="s">"_dmarc.example.com"</span>);\n<span class="k">switch</span> (r.getStatus()) {\n    <span class="k">case</span> OK:       use(r.getValues()); <span class="k">break</span>;   <span class="c">// each TXT record\'s strings joined</span>\n    <span class="k">case</span> NXDOMAIN:                               <span class="c">// the name does not exist</span>\n    <span class="k">case</span> NODATA:   noRecord(); <span class="k">break</span>;            <span class="c">// the name exists, no TXT record</span>\n    <span class="k">case</span> TEMPFAIL: tryLater(); <span class="k">break</span>;            <span class="c">// timeout, SERVFAIL, REFUSED...</span>\n}'
+    }
+  ];
+
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  function wireHtml(lines) {
+    return lines.map(function (l) {
+      var who = l.charAt(0), binary = l.charAt(1) === "~", body = l.slice(2);
+      var cls = who === "C" ? "cli" : "srv";
+      return '<span class="ln"><span class="who">' + who + '</span><span class="' + cls + '">' + esc(body) + '</span>' +
+        (binary ? "" : '<span class="eol">␍␊</span>') + '</span>';
+    }).join("");
+  }
+
+  var tabs = document.getElementById("tabs"), panels = document.getElementById("panels");
+  PROTOCOLS.forEach(function (p, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "tab"; b.id = "tab-" + p.id; b.textContent = p.name;
+    b.setAttribute("role", "tab"); b.setAttribute("aria-controls", "panel-" + p.id);
+    b.addEventListener("click", function () { select(p.id, true); });
+    tabs.appendChild(b);
+
+    var binary = p.wire.some(function (l) { return l.charAt(1) === "~"; });
+    var wireLabel = binary ? "On the wire · decoded" : "On the wire · every line ends in CR LF";
+    var el = document.createElement("div");
+    el.className = "panel"; el.id = "panel-" + p.id;
+    el.setAttribute("role", "tabpanel"); el.setAttribute("aria-labelledby", "tab-" + p.id);
+    el.hidden = true;
+    el.innerHTML =
+      '<div class="panel-card"><img src="' + CARDS[p.id] + '" alt="Margot asks: Parlez-vous ' + p.name + ' ?">' +
+      '<a class="repo" href="' + GH + p.repo + '">' + p.repo + ' on GitHub →</a></div>' +
+      '<div class="panel-body"><h3>' + p.title + '</h3><p>' + p.text + '</p>' +
+      '<ul class="specs">' + p.specs.map(function (s) { return "<li>" + s + "</li>"; }).join("") + '</ul>' +
+      '<div class="code-pair' + (p.code ? "" : " single") + '">' +
+        '<div class="code"><div class="code-label"><span>' + wireLabel + '</span><span>example</span></div><pre class="wire">' + wireHtml(p.wire) + '</pre></div>' +
+        (p.code ? '<div class="code"><div class="code-label"><span>Java</span><button class="copy" type="button" data-copy="code-' + p.id + '">Copy</button></div><pre id="code-' + p.id + '"><code>' + p.code + '</code></pre></div>' : "") +
+      '</div></div>';
+    panels.appendChild(el);
+  });
+
+  var current = null, timer = null;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function select(id, user) {
+    if (current === id) return;
+    current = id;
+    PROTOCOLS.forEach(function (p) {
+      var on = p.id === id;
+      document.getElementById("tab-" + p.id).setAttribute("aria-selected", on ? "true" : "false");
+      document.getElementById("tab-" + p.id).tabIndex = on ? 0 : -1;
+      document.getElementById("panel-" + p.id).hidden = !on;
+    });
+    if (user) {
+      try { history.replaceState(null, "", "#" + id); } catch (e) {}
+      stopCycle();
+      setHero(PROTOCOLS.filter(function (p) { return p.id === id; })[0].name);
+    }
+    walkWire(id);
+  }
+
+  // Light up the transcript one line at a time; every line stays visible throughout.
+  var walk = null;
+  function walkWire(id) {
+    clearInterval(walk);
+    var lines = document.querySelectorAll("#panel-" + id + " .wire .ln");
+    lines.forEach(function (l) { l.classList.remove("lit"); });
+    if (reduce || !lines.length) return;
+    var i = 0;
+    walk = setInterval(function () {
+      lines.forEach(function (l) { l.classList.remove("lit"); });
+      if (i >= lines.length) { clearInterval(walk); return; }
+      lines[i++].classList.add("lit");
+    }, 550);
+  }
+
+  tabs.addEventListener("keydown", function (e) {
+    var idx = PROTOCOLS.findIndex(function (p) { return p.id === current; });
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      var n = (idx + (e.key === "ArrowRight" ? 1 : PROTOCOLS.length - 1)) % PROTOCOLS.length;
+      select(PROTOCOLS[n].id, true);
+      document.getElementById("tab-" + PROTOCOLS[n].id).focus();
+    }
+  });
+
+  // Hero: Margot asks about each protocol in turn.
+  var heroProto = document.getElementById("hero-proto");
+  function setHero(name) {
+    if (reduce) { heroProto.textContent = name; return; }
+    heroProto.classList.add("swap");
+    setTimeout(function () { heroProto.textContent = name; heroProto.classList.remove("swap"); }, 250);
+  }
+  var names = ["SMTP", "IMAP", "POP3", "FTP", "SSH", "SFTP", "DNS"], n = 0;
+  function stopCycle() { clearInterval(timer); timer = null; }
+  if (!reduce) timer = setInterval(function () { n = (n + 1) % names.length; setHero(names[n]); }, 2600);
+
+  // Copy buttons
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".copy") : null;
+    if (!btn) return;
+    var src = document.getElementById(btn.getAttribute("data-copy"));
+    if (!src) return;
+    var text = src.innerText;
+    function done(msg) { btn.textContent = msg; setTimeout(function () { btn.textContent = "Copy"; }, 1600); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(src);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done("Selected");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done("Copied"); }, fallback);
+    } else { fallback(); }
+  });
+
+  var start = (location.hash || "").replace("#", "");
+  var ids = PROTOCOLS.map(function (p) { return p.id; });
+  select(ids.indexOf(start) >= 0 ? start : "smtp", false);
+  if (ids.indexOf(start) >= 0) {
+    setHero(PROTOCOLS[ids.indexOf(start)].name); stopCycle();
+    var sec = document.getElementById("protocols"); if (sec) sec.scrollIntoView();
+  }
+})();
+</script>
+
+</body>
+</html>

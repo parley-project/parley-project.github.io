@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" width="512" height="512"><title>Parley icon (small sizes)</title><rect width="100" height="100" rx="22" fill="#080808"/><g transform="translate(20 2.6) scale(0.30)">
+  
+  
+  
+  <path d="M62 44 L47 78 L57 78 L42 116 L72 66 L61 66 L70 44 Z" fill="#D0AA42"/>
+  <path d="M138 44 L153 78 L143 78 L158 116 L128 66 L139 66 L130 44 Z" fill="#D0AA42"/>
+  <rect x="98.5" y="18" width="3" height="28" fill="#D0AA42"/>
+  <circle cx="100" cy="20" r="4" fill="#D0AA42"/>
+  <g fill="#AB8C3C">
+    <path d="M95 44 L105 44 Q107 104 114 142 L86 142 Q93 104 95 44 Z"/>
+    <path d="M82 150 L118 150 Q122 182 132 206 L68 206 Q78 182 82 150 Z"/>
+    <path d="M64 216 L136 216 Q148 256 172 292 L140 292 Q129 252 100 250 Q71 252 60 292 L28 292 Q52 256 64 216 Z"/>
+  </g>
+  
+  <rect x="78" y="142" width="44" height="8" rx="1.5" fill="#D0AA42"/>
+  <rect x="58" y="206" width="84" height="10" rx="1.5" fill="#D0AA42"/>
+</g></svg>
